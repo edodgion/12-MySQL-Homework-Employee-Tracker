@@ -48,6 +48,10 @@ const runSearch = () => {
           employeeSearch();
           break;
 
+          case "Exit":
+          connection.end();
+          break;
+
         default:
           console.log(`Invalid action: ${answer.action}`);
           break;
@@ -55,14 +59,7 @@ const runSearch = () => {
     });
 };
 
-const artistSearch = () => {
-  inquirer
-    .prompt({
-      name: 'artist',
-      type: 'input',
-      message: 'What artist would you like to search for?',
-    })
-    .then((answer) => {
+const newDepartment = () => {
       const query = 'SELECT position, song, year FROM top5000 WHERE ?';
       connection.query(query, { artist: answer.artist }, (err, res) => {
         res.forEach(({ position, song, year }) => {
@@ -72,10 +69,9 @@ const artistSearch = () => {
         });
         runSearch();
       });
-    });
-};
+    };
 
-const multiSearch = () => {
+const newRole = () => {
   const query =
     'SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1';
   connection.query(query, (err, res) => {
@@ -84,33 +80,7 @@ const multiSearch = () => {
   });
 };
 
-const rangeSearch = () => {
-  inquirer
-    .prompt([
-      {
-        name: 'start',
-        type: 'input',
-        message: 'Enter starting position: ',
-        validate(value) {
-          if (isNaN(value) === false) {
-            return true;
-          }
-          return false;
-        },
-      },
-      {
-        name: 'end',
-        type: 'input',
-        message: 'Enter ending position: ',
-        validate(value) {
-          if (isNaN(value) === false) {
-            return true;
-          }
-          return false;
-        },
-      },
-    ])
-    .then((answer) => {
+const newEmployee = () => {
       const query =
         'SELECT position,song,artist,year FROM top5000 WHERE position BETWEEN ? AND ?';
       connection.query(query, [answer.start, answer.end], (err, res) => {
@@ -121,18 +91,9 @@ const rangeSearch = () => {
         });
         runSearch();
       });
-    });
-};
+    };
 
-const songSearch = () => {
-  inquirer
-    .prompt({
-      name: 'song',
-      type: 'input',
-      message: 'What song would you like to look for?',
-    })
-    .then((answer) => {
-      console.log(answer.song);
+const departmentSearch = () => {
       connection.query(
         'SELECT * FROM top5000 WHERE ?',
         { song: answer.song },
@@ -147,23 +108,24 @@ const songSearch = () => {
           runSearch();
         }
       );
-    });
-};
+    };
 
-const songAndAlbumSearch = () => {
-  inquirer
-    .prompt({
-      name: 'artist',
-      type: 'input',
-      message: 'What artist would you like to search for?',
-    })
-    .then((answer) => {
-      let query =
-        'SELECT top_albums.year, top_albums.album, top_albums.position, top5000.song, top5000.artist ';
-      query +=
-        'FROM top_albums INNER JOIN top5000 ON (top_albums.artist = top5000.artist AND top_albums.year ';
-      query +=
-        '= top5000.year) WHERE (top_albums.artist = ? AND top5000.artist = ?) ORDER BY top_albums.year, top_albums.position';
+const roleSearch = () => {
+      connection.query(query, [answer.artist, answer.artist], (err, res) => {
+        console.log(`${res.length} matches found!`);
+        res.forEach(({ year, position, artist, song, album }, i) => {
+          const num = i + 1;
+          console.log(
+            `${num} Year: ${year} Position: ${position} || Artist: ${artist} || Song: ${song} || Album: ${album}`
+          );
+        });
+
+        runSearch();
+      });
+    };
+
+
+const employeeSearch = () => {
 
       connection.query(query, [answer.artist, answer.artist], (err, res) => {
         console.log(`${res.length} matches found!`);
@@ -176,5 +138,4 @@ const songAndAlbumSearch = () => {
 
         runSearch();
       });
-    });
-};
+    };
