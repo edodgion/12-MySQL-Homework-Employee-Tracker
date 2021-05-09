@@ -1,7 +1,7 @@
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 const connection = require('./db/connection');
-const cTable = require('console.table');
+const consoleTable = require('console.table');
 
 const runSearch = () => {
   inquirer
@@ -10,33 +10,42 @@ const runSearch = () => {
       type: 'rawlist',
       message: 'What would you like to do?',
       choices: [
-        'Find songs by artist',
-        'Find all artists who appear more than once',
-        'Find data within a specific range',
-        'Search for a specific song',
-        'Find artists with a top song and top album in the same year',
+        'Add Deparment',
+        'Add Role',
+        'Add Employee',
+        'View Deparment',
+        'View Role',
+        'View Employee',
+        'Update Deparment',
+        'Update Employee',
+        'Update Role',
+        'Exit'
       ],
     })
     .then((answer) => {
       switch (answer.action) {
-        case 'Find songs by artist':
-          artistSearch();
+        case 'Add Department':
+          newDepartment();
           break;
 
-        case 'Find all artists who appear more than once':
-          multiSearch();
+        case 'Add Role':
+          newRole();
           break;
 
-        case 'Find data within a specific range':
-          rangeSearch();
+          case 'Add Employee':
+            newEmployee();
+            break;
+
+        case 'Find Employee by Deparmtent':
+          departmentSearch();
           break;
 
-        case 'Search for a specific song':
-          songSearch();
+        case 'Find Employee by Role':
+          roleSearch();
           break;
 
-        case 'Find artists with a top song and top album in the same year':
-          songAndAlbumSearch();
+          case 'Find Employee':
+          employeeSearch();
           break;
 
         default:
