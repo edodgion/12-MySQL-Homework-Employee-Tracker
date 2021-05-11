@@ -34,41 +34,46 @@ const runSearch = () => {
         'View Deparment',
         'View Role',
         'View Employee',
-        'Update Deparment',
-        'Update Employee',
-        'Update Role'
+        'Update Role',
+        'Exit'
       ],
     })
     .then((answer) => {
-      switch (answer.action) {
-        case 'Add Department':
+
+      // if (answer.action =='Add Deparment' ){
+      //   newDepartment();
+      // }
+
+      switch(answer.action) {
+        case 'Add Deparment':
           newDepartment();
           break;
-
-        case 'Add the Role':
+        case 'Add Role':
           newRole();
           break;
-
-          case 'Add the Employee':
-            newEmployee();
-            break;
-
-        case 'View Employee by Deparmtent':
+        case 'Add Employee':
+          newEmployee();
+          break;
+        case 'View Deparment':
           viewDepartment();
           break;
-
-        case 'View Employee by Role':
+        case 'View Role':
           viewRole();
           break;
-
-          case 'View Employee':
+        case 'View Employee':
           viewEmployee();
-          break;
-
+          case 'Upadte Role':
+            updateRole();
+            break;
+          case 'Exit':
+            connection.end();
+            console.log('You have exited the prompt')
+            break;
         default:
-         console.log(`Invalid action: ${answer.action}`);
-          break;
+          console.log("Invalid entry")
+         
       }
+      
     });
 };
 
@@ -81,7 +86,7 @@ const newDepartment = () => {
             name: "department",
             type: "input",
             message: "Would you like to add a department? ",
-        }, ])
+        }])
         .then(function (answer) {
             connection.query(
                 "INSERT INTO department SET ?", {
@@ -96,3 +101,208 @@ const newDepartment = () => {
 });
 };
 
+const newRole = () => {
+  connection.query("SELECT * FROM role", function (err, res) {
+    if (err) throw err;
+    inquirer
+        .prompt([
+    {
+      name: 'title',
+      type: 'input',
+      message: 'Please add a new Emplyee role.'
+    },
+    {
+      name: 'salary',
+      type: 'input',
+      message: 'Enter desired salary for this role'
+    },
+    {
+      name: 'dept',
+      type: 'list',
+      message: 'Select a department',
+      choices: [
+        'Production',
+        'Purchasing',
+        'Marketing',
+        'Human Resources'
+      ]
+    },
+  ])
+    .then((answer) => {
+      console.log(answer);
+      let deptId = '';
+      switch (answer.dept) {
+        case 'Production':
+          deptId = 1;
+          break;
+        case 'Purchasing':
+          deptId = 2;
+          break;
+        case 'Marketing':
+          deptId = 3;
+          break;
+        default:
+          deptId = 4;
+          break;
+      }
+      const query = connection.query(
+        'INSERT INTO role SET ?',
+        {
+          title: answer.title,
+          salary: answer.salary,
+          department_id: deptId
+        },
+        (err, res) => {
+          if (err) throw err;
+        }
+      )
+      console.log(`${answer.title} role inserted!\n`);
+      runSearch();
+    })
+})
+};
+
+
+const newEmployee = () => {
+  connection.query("SELECT * FROM role", function (err, res) {
+    if (err) throw err;
+    inquirer
+        .prompt([{
+                name: "first_name",
+                type: "input",
+                message: "Enter employee's fist name.",
+            },
+            {
+                name: "last_name",
+                type: "input",
+                message: "Enter employee's last name.",
+            },
+            {
+                name: "role",
+                type: "list",
+                choices: function () {
+                    var roleArray = [];
+                    for (let i = 0; i < res.length; i++) {
+                        roleArray.push(res[i].title);
+                    }
+                    return roleArray;
+                },
+                message: "What is this employee's role? ",
+            },
+        ])
+        .then(function (answer) {
+            let role_id;
+            for (let a = 0; a < res.length; a++) {
+                if (res[a].title == answer.role) {
+                    role_id = res[a].id;
+                    console.log(role_id);
+                }
+            }
+            connection.query(
+                "INSERT INTO employee SET ?", {
+                    first_name: answer.first_name,
+                    last_name: answer.last_name,
+                    manager_id: answer.manager_id,
+                    role_id: role_id,
+                },
+                function (err) {
+                    if (err) throw err;
+                    console.log("New Employee was added");
+                    runSearch();
+                }
+            );
+        });
+});
+};
+
+const viewDepartment = () => {
+  connection.query(
+    `SELECT * FROM department`, (err, res) => {
+      if (err) throw err;
+      console.table("All Departments:", res);
+      runSearch();
+  });
+};
+
+
+const viewRole = () => {
+  connection.query(
+    `SELECT role.title, role.salary, role.department_id FROM role `, (err, res) => {
+      if (err) throw err;
+      console.table("All Roles:", res);
+     runSearch();
+  });
+};
+
+const viewEmployee = () => {
+  connection.query(
+      `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary FROM employee, role, department WHERE department.id = role.department_id AND role.id = employee.role_id ORDER BY employee.id ASC`,
+      (err, res) => {
+          if (err) throw err;
+          console.table("All Employees", res);
+          runSearch();
+      }
+  );
+};
+
+
+const updateRole = () => {
+  prompt([
+    {
+      name: 'first_name',
+      type: 'input',
+      message: 'Please enter the employee\'s first name.\n'
+    },
+    {
+      name: 'last_name',
+      type: 'input',
+      message: 'Please enter the employee\'s last name.\n'
+    },
+    {
+      name: 'role',
+      type: 'list',
+      message: 'Please select the employee\'s new role.',
+      choices: [
+        'General Maintenance Worker',
+        'Purchasing Agent',
+        'HR Assistant',
+        'Purchasing Director',
+        'Social Media Manager',
+        'Warehouse Supervisor'
+      ]
+    },
+  ])
+    .then((answer) => {
+      let updateRoleId = '';
+      switch (answer.role) {
+        case 'General Maintenance Worker':
+          newRoleId = 1;
+          break;
+        case 'Purchasing Agent':
+          newRoleId = 2;
+          break;
+        case 'HR Assistant':
+          newRoleId = 3;
+          break;
+        case 'Purchasing Director':
+          newRoleId = 4;
+          break;
+        case 'Social Media Manager':
+          newRoleId = 5;
+          break;
+        case 'Warehouse Supervisor':
+          newRoleId = 6;
+          break;
+        default:
+          newRoleId = 7;
+          break;
+      }
+      console.log(updateRoleId);
+      console.log('Updating an employee\'s role');
+      let update = `UPDATE employee SET role_id = ? WHERE employee.first_name = ? AND employee.last_name = ?`
+      connection.query(update, [updateRoleId, answer.first_name, answer.last_name], (err, res) => {
+        console.log(`Updated the Role.`);
+      })
+      runSearch();
+    })
+};
