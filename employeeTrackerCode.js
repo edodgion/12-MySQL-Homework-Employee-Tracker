@@ -1,16 +1,13 @@
 const inquirer = require('inquirer');
-require('console.table');
+const consoleTable = require('console.table');
 
 const mysql = require('mysql');
 const connection = mysql.createConnection({
   host: 'localhost',
-
   // Your port; if not 3306
   port: 3306,
-
   // Your username
   user: 'root',
-
   // Be sure to update with your own MySQL password!
   password: 'Mysqlpass1234!',
   database: 'employee_db',
@@ -79,22 +76,22 @@ const runSearch = () => {
 
 const newDepartment = () => {
   console.log('Please add a new department...\n')
-  connection.query("SELECT * FROM department", function (err, res) {
+  connection.query('SELECT * FROM department', function (err, res) {
     if (err) throw err;
     inquirer
         .prompt([{
-            name: "department",
-            type: "input",
-            message: "Would you like to add a department? ",
+            name: 'department',
+            type: 'input',
+            message: 'Please enter new Department',
         }])
         .then(function (answer) {
             connection.query(
-                "INSERT INTO department SET ?", {
+                'INSERT INTO department SET ?', {
                     name: answer.department,
                 },
                 function (err) {
                     if (err) throw err;
-      console.table('Create a Department', res);
+        consoleTable('Add Department', res);
       runSearch();
     });
   });
@@ -161,25 +158,23 @@ const newRole = () => {
     })
 })
 };
-
-
 const newEmployee = () => {
-  connection.query("SELECT * FROM role", function (err, res) {
+  connection.query('SELECT * FROM role', function (err, res) {
     if (err) throw err;
     inquirer
         .prompt([{
-                name: "first_name",
-                type: "input",
-                message: "Enter employee's fist name.",
+                name: 'first_name',
+                type: 'input',
+                message: 'Enter employees fist name.',
             },
             {
-                name: "last_name",
-                type: "input",
-                message: "Enter employee's last name.",
+                name: 'last_name',
+                type: 'input',
+                message: 'Enter employees last name.',
             },
             {
-                name: "role",
-                type: "list",
+                name: 'role',
+                type: 'list',
                 choices: function () {
                     var roleArray = [];
                     for (let i = 0; i < res.length; i++) {
@@ -187,7 +182,7 @@ const newEmployee = () => {
                     }
                     return roleArray;
                 },
-                message: "What is this employee's role? ",
+                message: 'What is this employees role?',
             },
         ])
         .then(function (answer) {
@@ -199,7 +194,7 @@ const newEmployee = () => {
                 }
             }
             connection.query(
-                "INSERT INTO employee SET ?", {
+                'INSERT INTO employee SET ?', {
                     first_name: answer.first_name,
                     last_name: answer.last_name,
                     manager_id: answer.manager_id,
@@ -207,45 +202,39 @@ const newEmployee = () => {
                 },
                 function (err) {
                     if (err) throw err;
-                    console.log("New Employee was added");
+                    console.log('New Employee was added');
                     runSearch();
                 }
             );
         });
 });
 };
-
 const viewDepartment = () => {
   connection.query(
     `SELECT * FROM department`, (err, res) => {
       if (err) throw err;
-      console.table("All Departments:", res);
+      console.table('All Departments:', res);
       runSearch();
   });
 };
-
-
 const viewRole = () => {
   connection.query(
     `SELECT role.title, role.salary, role.department_id FROM role `, (err, res) => {
       if (err) throw err;
-      console.table("All Roles:", res);
+      console.table('All Roles:', res);
      runSearch();
   });
 };
-
 const viewEmployee = () => {
   connection.query(
       `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary FROM employee, role, department WHERE department.id = role.department_id AND role.id = employee.role_id ORDER BY employee.id ASC`,
       (err, res) => {
           if (err) throw err;
-          console.table("All Employees", res);
+          console.table('All Employees', res);
           runSearch();
       }
   );
 };
-
-
 const updateRole = () => {
   prompt([
     {
