@@ -1,5 +1,5 @@
 const inquirer = require('inquirer');
-const consoleTable = require('console.table');
+require('console.table');
 
 const mysql = require('mysql');
 const connection = mysql.createConnection({
@@ -75,7 +75,7 @@ const runSearch = () => {
 };
 
 const newDepartment = () => {
-  console.log('Please add a new department...\n')
+  console.log('Please add a new department...')
   connection.query('SELECT * FROM department', function (err, res) {
     if (err) throw err;
     inquirer
@@ -91,7 +91,7 @@ const newDepartment = () => {
                 },
                 function (err) {
                     if (err) throw err;
-        consoleTable('Add Department', res);
+          console.table('Add Department', res);
       runSearch();
     });
   });
@@ -114,7 +114,7 @@ const newRole = () => {
       message: 'Enter desired salary for this role'
     },
     {
-      name: 'dept',
+      name: 'department',
       type: 'list',
       message: 'Select a department',
       choices: [
@@ -128,7 +128,7 @@ const newRole = () => {
     .then((answer) => {
       console.log(answer);
       let deptId = '';
-      switch (answer.dept) {
+      switch (answer.department) {
         case 'Production':
           deptId = 1;
           break;
@@ -153,7 +153,7 @@ const newRole = () => {
           if (err) throw err;
         }
       )
-      console.log(`${answer.title} role inserted!\n`);
+      console.log(`${answer.title} role inserted!`);
       runSearch();
     })
 })
@@ -240,17 +240,17 @@ const updateRole = () => {
     {
       name: 'first_name',
       type: 'input',
-      message: 'Please enter the employee\'s first name.\n'
+      message: 'Enter the employees first name.'
     },
     {
       name: 'last_name',
       type: 'input',
-      message: 'Please enter the employee\'s last name.\n'
+      message: 'Enter the employees last name.'
     },
     {
       name: 'role',
       type: 'list',
-      message: 'Please select the employee\'s new role.',
+      message: 'Select a new role.',
       choices: [
         'General Maintenance Worker',
         'Purchasing Agent',
@@ -265,29 +265,29 @@ const updateRole = () => {
       let updateRoleId = '';
       switch (answer.role) {
         case 'General Maintenance Worker':
-          newRoleId = 1;
+          updateRoleId = 1;
           break;
         case 'Purchasing Agent':
-          newRoleId = 2;
+          updateRoleId = 2;
           break;
         case 'HR Assistant':
-          newRoleId = 3;
+          updateRoleId = 3;
           break;
         case 'Purchasing Director':
-          newRoleId = 4;
+          updateRoleId = 4;
           break;
         case 'Social Media Manager':
-          newRoleId = 5;
+          updateRoleId = 5;
           break;
         case 'Warehouse Supervisor':
-          newRoleId = 6;
+          updateRoleId = 6;
           break;
         default:
-          newRoleId = 7;
+          updateRoleId = 7;
           break;
       }
       console.log(updateRoleId);
-      console.log('Updating an employee\'s role');
+      console.log('Updated an employee role');
       let update = `UPDATE employee SET role_id = ? WHERE employee.first_name = ? AND employee.last_name = ?`
       connection.query(update, [updateRoleId, answer.first_name, answer.last_name], (err, res) => {
         console.log(`Updated the Role.`);
