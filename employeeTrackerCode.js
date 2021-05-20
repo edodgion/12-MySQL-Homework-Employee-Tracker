@@ -9,7 +9,7 @@ const connection = mysql.createConnection({
   // Your username
   user: "root",
   // Be sure to update with your own MySQL password!
-  password: "Mysqlpass1234!",
+  password: "",
   database: "employee_db",
 });
 
@@ -36,10 +36,6 @@ const runSearch = () => {
       ],
     })
     .then((answer) => {
-      // if (answer.action =='Add Deparment' ){
-      //   newDepartment();
-      // }
-
       switch (answer.action) {
         case "Add Deparment":
           newDepartment();
@@ -235,65 +231,21 @@ const viewEmployee = () => {
   );
 };
 const updateRole = () => {
-  prompt([
-    {
-      name: "first_name",
-      type: "input",
-      message: "Enter the employees first name.",
-    },
-    {
-      name: "last_name",
-      type: "input",
-      message: "Enter the employees last name.",
-    },
-    {
-      name: "role",
-      type: "list",
-      message: "Select a new role.",
-      choices: [
-        "General Maintenance Worker",
-        "Purchasing Agent",
-        "HR Assistant",
-        "Purchasing Director",
-        "Social Media Manager",
-        "Warehouse Supervisor",
-      ],
-    },
-  ]).then((answer) => {
-    let updateRoleId = "";
-    switch (answer.role) {
-      case "General Maintenance Worker":
-        updateRoleId = 1;
-        break;
-      case "Purchasing Agent":
-        updateRoleId = 2;
-        break;
-      case "HR Assistant":
-        updateRoleId = 3;
-        break;
-      case "Purchasing Director":
-        updateRoleId = 4;
-        break;
-      case "Social Media Manager":
-        updateRoleId = 5;
-        break;
-      case "Warehouse Supervisor":
-        updateRoleId = 6;
-        break;
-      default:
-        updateRoleId = 7;
-        break;
-    }
-    console.log(updateRoleId);
-    console.log("Updated an employee role");
-    let update = `UPDATE employee SET role_id = ? WHERE employee.first_name = ? AND employee.last_name = ?`;
-    connection.query(
-      update,
-      [updateRoleId, answer.first_name, answer.last_name],
-      (err, res) => {
-        console.log(`Updated the Role.`);
-      }
-    );
-    runSearch();
-  });
+	connection.query(
+		`SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee LEFT JOIN role ON employee.role_id = role.id ORDER BY employee.id ASC`,
+		(err, res) => {
+			if (err) throw err;
+			console.table("All Employee Roles", res);
+      runSearch();
+		}
+	);
+	connection.query(
+		`SELECT id, role.title FROM role ORDER BY id`,
+		(err, res) => {
+			if (err) throw err;
+			console.table("All Roles", res);
+      runSearch();
+		}
+	)
 };
+

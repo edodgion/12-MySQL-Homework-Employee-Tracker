@@ -22,5 +22,10 @@ So that I can organize and plan my business
 ![](./assets/employee-tracker.gif)
 ![](./assets/schema.png)
 
+## Live Link and Video Demo
+https://github.com/edodgion/12-MySQL-Homework-Employee-Tracker
+
+[My Test Video Demo](https://youtu.be/S-BWwsWdXtA)
+
 ## Credit
 This was made with ❤️ by Eric Dodgion 05/09/2021
