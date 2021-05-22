@@ -54,7 +54,7 @@ const runSearch = () => {
           break;
         case "View Employee":
           viewEmployee();
-        case "Upadte Role":
+        case "Update Role":
           updateRole();
           break;
         case "Exit":
@@ -232,15 +232,53 @@ const viewEmployee = () => {
 };
 const updateRole = () => {
 	connection.query(
-		`SELECT employee.id, employee.first_name, employee.last_name, role.title FROM employee LEFT JOIN role ON employee.role_id = role.id ORDER BY employee.id ASC`,
+		`SELECT id, title FROM role`,
 		(err, res) => {
 			if (err) throw err;
-			console.table("All Employee Roles", res);
-      runSearch();
+      var roleTitles = [];
+      for (var i = 0; i < res.length; i++){
+        roleTitles.push(res[i].title + " " + res[i].id )
+      }
+
+
+
+      inquirer
+      .prompt([
+        {
+          name: "newRole",
+          type: "list",
+          message: "Please select new role",
+          choices: roleTitles
+        },
+      ])
+      .then(function (answer) {
+        var names = [];
+        connection.query(
+          `SELECT id, first_name, last_name FROM employee`,
+          function (err,res) {
+            if (err) throw err;
+     
+      for (var i = 0; i < res.length; i++){
+        names.push(res[i].first_name + " " + res[i].last_name + " " + res[i].id )
+          }
+
+          inquirer
+        .prompt([
+          {
+            name: "employeeName",
+            type: "list",
+            message: "Please select employee",
+            choices: names
+          },
+        ])
+        });
+        
+
+      });
 		}
 	);
 	connection.query(
-		`SELECT id, role.title FROM role ORDER BY id`,
+		`UPDATE id, role.title SET role WHERE id`,
 		(err, res) => {
 			if (err) throw err;
 			console.table("All Roles", res);
